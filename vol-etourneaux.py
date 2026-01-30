@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 # Paramètres du modèle
-
-alpha_coh, alpha_rep, alpha_ali, r_coh, r_rep, r_ali = 1.2, 0.3, 1.0, 10.0, 3.0, 15.0
+# Pour un regroupement lent vers un groupe circulaire
+alpha_coh, alpha_rep, alpha_ali, r_coh, r_rep, r_ali = 0.4, 0.25, 0.5, 20.0, 5.0, 15.0
 
 # Définition de la classe qui représente le rgoupe d'étourneaux
 
