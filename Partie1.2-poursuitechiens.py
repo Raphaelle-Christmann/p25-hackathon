@@ -32,6 +32,7 @@ for i in range(N-1): # remplissage du tableau des positions
     r[i+1] = rk4(r[i], temps[i], f, dt)
 
 plt.figure()
+plt.grid()
 plt.plot(r[:,:,0],r[:,:,1],linewidth=1) # tracé des trajectoires des 7 chiens
 plt.plot(np.append(r[0,:,0],r[0,0,0]),np.append(r[0,:,1],r[0,0,1]),'k-',alpha=0.5) # heptagone initial
 plt.axis('equal')   
