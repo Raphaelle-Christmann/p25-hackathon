@@ -17,7 +17,7 @@ dt = tfinal / N
 temps = np.linspace(0, tfinal, N+1)
 p[0] = [40, 10]  
 
-for i in range(N):
+for i in range(N): # implémentation de la méthode de Runge-Kutta 4.
     k1 = f(p[i], alpha, beta, delta,gamma, temps[i])
     k2 = f(p[i] + 0.5*dt*k1, alpha, beta, delta, gamma, temps[i] + 0.5*dt)
     k3 = f(p[i] + 0.5*dt*k2, alpha, beta, delta, gamma, temps[i] + 0.5*dt)
