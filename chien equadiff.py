@@ -1,24 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# def runge_kutta(f, v,t0,tf,dt):
-#     time = np.arange(t0, tf + dt, dt)
-#     solx = np.zeros(len(time))
-#     soly = np.zeros(len(time))
-#     solx[0]=1
-#     for k in range(len(time) - 1):
-#         solx[k + 1] = solx[k] + (1/6)*dt*(fx(solx[k],time[k])+
-#          2*fx(solx[k]+(1/2)*dt*f(solx[k], xb[k], soly[k],time[k] + (1/2)*dt)+
-#          2*fx(solx[k]+(1/2)*dt*fx(solx[k]+(1/2)*dt* fx(solx[k]+(1/2)*dt*fx(solx[k],time[k]),time[k] + (1/2)*dt), time[k] + (1/2)*dt) +
-#          fx(solx[k]+(1/2)*dt*fx(solx[k]+(1/2)*dt*fx(solx[k],time[k]),time[k] + (1/2)*dt)+2*fx(solx[k]+(1/2)*dt*fx(solx[k]+(1/2)*dt* fx(solx[k]+(1/2)*dt*fx(solx[k],time[k]),time[k] + (1/2)*dt), time[k] + (1/2)*dt) , time[k] + (1/2)*dt))))
-#         soly[k + 1] = soly[k] + (1/6)*dt*((fy(soly[k],time[k])+
-#          2*fy(soly[k]+(1/2)*dt*fy(soly[k],time[k]),time[k] + (1/2)*dt)+
-#          2*fy(soly[k]+(1/2)*dt*fy(soly[k]+(1/2)*dt* fy(soly[k]+(1/2)*dt*fy(soly[k],time[k]),time[k] + (1/2)*dt), time[k] + (1/2)*dt) +
-#          fy(soly[k]+(1/2)*dt*fy(soly[k]+(1/2)*dt*fy(soly[k],time[k]),time[k] + (1/2)*dt)+2*fy(soly[k]+(1/2)*dt*fy(soly[k]+(1/2)*dt* fy(soly[k]+(1/2)*dt*fy(soly[k],time[k]),time[k] + (1/2)*dt), time[k] + (1/2)*dt) , time[k] + (1/2)*dt)))))
-        
-#     return solx, soly
-   
-
+"Partie 1"
 # paramètres
 v =  1.5     # vitesse du chien
 vB = 1       # vitesse de la balle
@@ -68,27 +51,58 @@ plt.grid()
 plt.show()
 
     
+
+"Partie 2"
+
+def heptagone(n, time):#j'ai besoin du temps en argument pour créer r
+    alpha = 2 * np.pi / n
+    r = np.zeros((len(time), n, 2))
+    for i in range(n):
+        r[0, i, 0] = np.cos(i * alpha)
+        r[0, i, 1] = np.sin(i * alpha)
+    return r
+
+def f2(r, t):
+    rnext = np.roll(r, -1, axis=0)   # voisin i+1: on a décalé de 1
+    diff = rnext - r #on fait la diff entre les deux tableaux                
+    norme = np.linalg.norm(diff, axis=1, keepdims=True)#axis 1 pour faire la norme de chaque vecteur pour chaque temps
+    return np.where(norme == 0, np.zeros_like(diff),v * diff / norme)
+
+def runge_kutta2(n, f, t0, tf, dt):
+    time = np.arange(t0, tf + dt, dt)
+    r = heptagone(n, time)
+    for k in range(len(time) - 1):
+        t = time[k]
+        rk = r[k]
+        k1 = f(rk, t)
+        k2 = f(rk + 0.5 * dt * k1, t + 0.5 * dt)
+        k3 = f(rk + 0.5 * dt * k2, t + 0.5 * dt)
+        k4 = f(rk + dt * k3, t + dt)
+        r[k + 1] = rk + (dt / 6) * (k1 + 2*k2 + 2*k3 + k4)
+
+    return time, r
+
+time, r = runge_kutta2(25, f2, 0, 300, 0.01)
+
+for i in range(25):
+    plt.plot(r[:, i, 0], r[:, i, 1], label=f"trajectoire chien {i+1}")
+
+plt.xlabel("x")
+plt.ylabel("y")
+plt.axis('equal')
+plt.title('course poursuite entre canidés')
+plt.legend()
+plt.grid()
+plt.show()
+
+
+
+
     
 
-# def f(x, xb, y, t):
-#     norme=np.sqrt((xb-x)**2+y**2)
-#     fx=v*(xb-x)/norme
-#     fy=v*(-y)/norme
-#     return fx, fy
-
-# solx, soly = runge_kutta(f, 10, 0, 10, 0.1)
-# time = np.arange(t0, tf + dt, dt)
-# xb=v*time
-# yb = np.zeros(len(time))
 
 
-# plt.plot(solx, soly, label="trajectoire du chien")
-# plt.plot(xb, yb, label="trajectoire de la balle")
-# plt.xlabel("x(t)")
-# plt.ylabel("y(t)")
-# plt.grid()
-# plt.legend()
-# plt.show()
+
 
 
 
