@@ -52,11 +52,3 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
-# Tracé phase plane exemple : Lapins vs Renards
-plt.figure(figsize=(6,6))
-plt.plot(p[:,0], p[:,1])
-plt.xlabel("Population de Lapins")
-plt.ylabel("Population de Renards")
-plt.title("Phase Plane Lapins vs Renards")
-plt.grid(True)
-plt.show()
