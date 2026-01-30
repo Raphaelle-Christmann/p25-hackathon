@@ -7,7 +7,7 @@ import matplotlib.animation as animation
 
 # Paramètres du modèle
 
-alpha_coh, alpha_rep, alpha_ali, r_coh, r_rep, r_ali = 0.5, 0.8, 0.6, 15.0, 2.0, 10.0
+alpha_coh, alpha_rep, alpha_ali, r_coh, r_rep, r_ali = 1.2, 0.3, 1.0, 10.0, 3.0, 15.0
 
 # Définition de la classe qui représente le rgoupe d'étourneaux
 
@@ -20,8 +20,8 @@ class Etourneaux:
 
     def __init__(self, n:int):
         self.n = n # nombre d'étourneaux
-        self.positions = np.random.rand(n,2) *100 # les positions initiales
-        self.vitesses = np.random.rand(n,2) * 10 # les vitesses initiales, on ne les met pas trop élevées pour être cohérents
+        self.positions = np.random.rand(n,2) * 100 # les positions initiales
+        self.vitesses = np.random.rand(n,2) * 5 # les vitesses initiales, on ne les met pas trop élevées pour être cohérents
 
     def voisins(self,i:int) -> tuple:
         """Renvoie les voisinnages associés aux différentes forces pour l'étourneau i.
@@ -60,23 +60,19 @@ class Etourneaux:
         for i in range(self.n):
             forces[i] = self.calcule_force(i)
             new_v[i] += forces[i] * dt  # mise à jour des vitesses
-            new_r[i] = new_r[i] + new_v[i] * dt  # mise à jour des positions
-            
-            # Réflexion sans if : traiter chaque coordonnée
-            # X : détection des sorties et réflexion
-            out_x_min = 1.0 * (new_r[i,0] < 0)
-            out_x_max = 1.0 * (new_r[i,0] > L)
-            new_r[i,0] = -new_r[i,0] * out_x_min + new_r[i,0] * (1 - out_x_min)
-            new_r[i,0] = (2*L - new_r[i,0]) * out_x_max + new_r[i,0] * (1 - out_x_max)
-            new_v[i,0] = -new_v[i,0] * (out_x_min + out_x_max - out_x_min*out_x_max) + new_v[i,0] * (1 - (out_x_min + out_x_max - out_x_min*out_x_max))
-            
-            # Y : détection des sorties et réflexion
-            out_y_min = 1.0 * (new_r[i,1] < 0)
-            out_y_max = 1.0 * (new_r[i,1] > L)
-            new_r[i,1] = -new_r[i,1] * out_y_min + new_r[i,1] * (1 - out_y_min)
-            new_r[i,1] = (2*L - new_r[i,1]) * out_y_max + new_r[i,1] * (1 - out_y_max)
-            new_v[i,1] = -new_v[i,1] * (out_y_min + out_y_max - out_y_min*out_y_max) + new_v[i,1] * (1 - (out_y_min + out_y_max - out_y_min*out_y_max))
-        self.vitesses, self.positions = new_v, new_r
+            ri = new_r[i] + new_v[i] * dt  # mise à jour des positions
+            x,y = ri[0], ri[1]
+            signx = (ri[0] >= L) or (ri[0] < 0)  # indique si on a un dépassement en x ou non
+            signy = (ri[1] >= L) or (ri[1] < 0)  # indique si on a un dépassement en y ou non
+            x = np.where(x<0,0,x) # dépassement potentiel en 0
+            y = np.where(y<0,0,y)
+            x = np.where(x>=L,L-1e-5,x) # dépassement potentiel en L avec condition de lissage
+            y = np.where(y>=L,L-1e-5,y)
+            new_r[i,0], new_r[i,1] = x,y
+            new_v[i,0] = np.where(signx, -new_v[i,0]*0.5, new_v[i,0]) # rebond en x, on diminue la vitesse selon x s'il y a un rebond
+            new_v[i,1] = np.where(signy, -new_v[i,1]*0.5, new_v[i,1]) # rebond en y, de même
+        self.vitesses = new_v
+        self.positions = new_r
 
 def simulation_etourneaux(n:int, steps:int, dt:float, L : int) -> tuple:
     """Simule un vol d\'étourneaux
@@ -94,7 +90,7 @@ def anime_etourneaux(positions:np.ndarray) -> None:
     """Anime la simulation des étourneaux
     Args positions : les positions des étourneaux à chaque étape de la simulation"""
     fig, ax = plt.subplots()
-    scat = ax.scatter(positions[0,:,0], positions[0,:,1])
+    scat = ax.scatter(positions[0,:,0], positions[0,:,1], marker='v', color="#725a8f")
     def update(frame):
         scat.set_offsets(positions[frame])
         return scat,
@@ -104,7 +100,7 @@ def anime_etourneaux(positions:np.ndarray) -> None:
 # Crashtest
 n = 100
 steps = 1000
-dt = 0.1
-L = 1000
+dt = 0.05
+L = 100
 positions = simulation_etourneaux(n,steps,dt,L)[0]
 anime_etourneaux(positions)
